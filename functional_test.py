@@ -42,6 +42,8 @@ class NewVisitorTest(unittest.TestCase):
 
     def setUp(self):
         self.browser = webdriver.Chrome()
+        self.browser.implicitly_wait(3)
+        # 隐式等待
 
     def tearDown(self):
         self.browser.quit()
@@ -67,7 +69,7 @@ class NewVisitorTest(unittest.TestCase):
         # 使用self.assertIn代替assert编写断言。
         # unittest提供了很多这种用于编写断言测试的辅助函数
         # 如assertEqual, assertTrue, assertFalse等，具体可以看下unittest的文档
-        
+
         self.fail('Finish the test!')
         # 不管怎样，self.fail都会失败，生成制定的错误消息。这里使用这个方法提示测试结束了。
 
