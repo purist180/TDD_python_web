@@ -1,6 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-import unittest
+from django.test import LiveServerTestCase
 
 # 关于功能测试
 # 使用Selenium实现的测试可以驱动真正的网页浏览器，让我们能从用户的角度查看应用是如何运作的。
@@ -38,7 +38,7 @@ import unittest
 # browser.quit()
 
 
-class NewVisitorTest(unittest.TestCase):
+class NewVisitorTest(LiveServerTestCase):
     # 测试组织成类的形式，继承自unittest.Testcase
 
     def setUp(self):
@@ -68,7 +68,9 @@ class NewVisitorTest(unittest.TestCase):
         # print(type(self))
 
         # 打开应用的首页
-        self.browser.get('http://localhost:8000')
+        self.browser.get(self.live_server_url)
+        # 访问网站是，不用硬编码的本地地址（localhost:8000),使用LiveServerTestCase提供的live_server_url属性
+        # print(self.live_server_url)
 
         # 她注意到网页的标题和头部都包含“To-Do"这个词
         self.assertIn('To-Do', self.browser.title)
@@ -106,7 +108,6 @@ class NewVisitorTest(unittest.TestCase):
         self.check_for_row_in_list_table('2: Use peacock feathers to make a fly')
 
         # 页面更新，清单中显示这两个待办事项
+        self.fail('Finish the test!!!')
 
 
-if __name__ == '__main__':
-    unittest.main()
