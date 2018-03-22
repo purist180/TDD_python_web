@@ -24,7 +24,6 @@ class HomePageTest(TestCase):
         # 创建一个HttpRequest对象，
         # 用户在浏览器中请求网页时， Django看到的就是HttpRequest对象。
         response = home_page(request)
-        print(type(response.content))
         # 把这个HttpRequest对象传给home_page视图，得到响应response。
         # 接下来断定相应的.content属性（即发给用户的HTML）中是否有特定内容
         self.assertTrue(response.content.startswith(b'<html>'))

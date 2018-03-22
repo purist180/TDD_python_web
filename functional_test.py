@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 import unittest
 
 # 关于功能测试
@@ -25,9 +26,9 @@ import unittest
 # # 去看了应用的首页
 # browser.get('http://localhost:8000')
 
-# 		# 启动一个Selenium webdriver，打开一个真正的Chrome浏览器窗口；
-# 		# 在这个浏览器窗口中打开期望的本地电脑伺服的网页；
-# 		# 检查（做一个 测试断言）这个网页的标题中是否包含单词'Django'
+#       # 启动一个Selenium webdriver，打开一个真正的Chrome浏览器窗口；
+#       # 在这个浏览器窗口中打开期望的本地电脑伺服的网页；
+#       # 检查（做一个 测试断言）这个网页的标题中是否包含单词'Django'
 
 # # 注意到网页的标题和头部都包含“To-Do"这个词
 
@@ -42,7 +43,7 @@ class NewVisitorTest(unittest.TestCase):
 
     def setUp(self):
         self.browser = webdriver.Chrome()
-        self.browser.implicitly_wait(3)
+        # self.browser.implicitly_wait(3)
         # 隐式等待
 
     def tearDown(self):
@@ -59,7 +60,7 @@ class NewVisitorTest(unittest.TestCase):
         # 测试的主要代码写在名为test_can_start_a_list_and_retrieve_it_later的方法中。
         # 名字以test_开头的方法都是测试方法，由测试运行程序运行。
         # 类中可以定义多个测试方法。
-        print(type(self))
+        # print(type(self))
 
         # 打开应用的首页
         self.browser.get('http://localhost:8000')
@@ -70,8 +71,35 @@ class NewVisitorTest(unittest.TestCase):
         # unittest提供了很多这种用于编写断言测试的辅助函数
         # 如assertEqual, assertTrue, assertFalse等，具体可以看下unittest的文档
 
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.asserIn('To-Do', header_text)
+
+        # 应用邀请他输入一个待办事项
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertEqual(
+            inputbox.get_attribute('placeholder'),
+            'Enter a to-do item'
+        )
+
+        # 在文本框中输入'Buy peacock feathers',
+        inputbox.send_keys('Buy peacock feathers')
+
+        # 按回车键后页面更新，
+        # 待办事项表格中显示了'1: Buy peacocks feathers'
+        inputbox.send_keys(Keys.ENTER)
+
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_elements_by_tag_name('tr')
+        self.assertTrue(
+            any(row.text == '1: Buy peacock feathers' for row in rows)
+        )
+
+        # 页面有显示了一个文本框，可以输入其他的待办事项
+        # 他输入了'Use peacock feathers to make a fly'
+        # 把拉巴拉
         self.fail('Finish the test!')
-        # 不管怎样，self.fail都会失败，生成制定的错误消息。这里使用这个方法提示测试结束了。
+
+        # 页面更新，清单中显示这两个待办事项
 
 
 if __name__ == '__main__':
