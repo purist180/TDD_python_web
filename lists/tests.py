@@ -1,3 +1,4 @@
+from django.template.loader import render_to_string
 from django.core.urlresolvers import resolve
 from django.test import TestCase
 from django.http import HttpRequest
@@ -20,12 +21,21 @@ class HomePageTest(TestCase):
         # 检查解析网站跟路径“/”时，是否能找到名为home_page的函数。
 
     def test_home_page_returns_correct_html(self):
+        # request = HttpRequest()
+        # # 创建一个HttpRequest对象，
+        # # 用户在浏览器中请求网页时， Django看到的就是HttpRequest对象。
+        # response = home_page(request)
+        # # 把这个HttpRequest对象传给home_page视图，得到响应response。
+        # # 接下来断定相应的.content属性（即发给用户的HTML）中是否有特定内容
+        # self.assertTrue(response.content.startswith(b'<html>'))
+        # self.assertIn(b'<title>To-Do lists</title>', response.content)
+        # self.assertTrue(response.content.endswith(b'</html>'))
         request = HttpRequest()
-        # 创建一个HttpRequest对象，
-        # 用户在浏览器中请求网页时， Django看到的就是HttpRequest对象。
         response = home_page(request)
-        # 把这个HttpRequest对象传给home_page视图，得到响应response。
-        # 接下来断定相应的.content属性（即发给用户的HTML）中是否有特定内容
-        self.assertTrue(response.content.startswith(b'<html>'))
-        self.assertIn(b'<title>To-Do lists</title>', response.content)
-        self.assertTrue(response.content.endswith(b'</html>'))
+        print(repr(response.content.decode()))
+        expected_html = render_to_string('home.html')
+        self.assertEqual(response.content.decode(), expected_html)
+        # 使用.decode()把response.content中的字节转换成Python中的Unicode字符串，这样就可以
+        # 对比字符串，不用像之前一样对比字节Bytes。
+
+        
