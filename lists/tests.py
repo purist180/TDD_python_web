@@ -32,10 +32,26 @@ class HomePageTest(TestCase):
         # self.assertTrue(response.content.endswith(b'</html>'))
         request = HttpRequest()
         response = home_page(request)
-        print(repr(response.content.decode()))
         expected_html = render_to_string('home.html')
         self.assertEqual(response.content.decode(), expected_html)
         # 使用.decode()把response.content中的字节转换成Python中的Unicode字符串，这样就可以
         # 对比字符串，不用像之前一样对比字节Bytes。
+
+    def test_home_page_can_save_a_POST_request(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'A new list item'
+        # 用到了HttpRequest的几个特殊性：.method和.POST
+        # 阅读Django关于请求和相应的文档。
+
+        response = home_page(request)
+        self.assertIn('A new list item', response.content.decode())
+        # 检查POST请求渲染得到的HTML中是否有指定的文本
+
+        expected_html = render_to_string(
+            'home.html',
+            {'new_item_text': 'A new list item'}
+        )
+        self.assertEqual(response.content.decode(), expected_html)
 
         
