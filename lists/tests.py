@@ -46,14 +46,36 @@ class HomePageTest(TestCase):
         # 阅读Django关于请求和相应的文档。
 
         response = home_page(request)
-        self.assertIn('A new list item', response.content.decode())
-        # 检查POST请求渲染得到的HTML中是否有指定的文本
 
-        expected_html = render_to_string(
-            'home.html',
-            {'new_item_text': 'A new list item'}
-        )
-        self.assertEqual(response.content.decode(), expected_html)
+        self.assertEqual(Item.objects.count(), 1)
+        # 检查是否吧一个新的Item对象存入数据库。objects.count()是objects.all().count()的简化形式。
+        new_item = Item.objects.first()  # 等价于Item.objects.all()[0]
+        self.assertEqual(new_item.text, 'A new list item')
+
+    def test_home_page_redirects_after_POST(self):
+        request = HttpRequest()
+        request.method = 'POST'
+        request.POST['item_text'] = 'A new list item'
+
+        response = home_page(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['location'], '/')
+
+    def test_home_page_only_saves_items_when_necessary(self):
+        request = HttpRequest()
+        home_page(request)
+        self.assertEqual(Item.objects.count(), 0)
+
+    def test_home_page_can_display_all_list_items(self):
+        Item.objects.create(text='itemey 1')
+        Item.objects.create(text='itemey 2')
+
+        request = HttpRequest()
+        response = home_page(request)
+
+        self.assertIn('itemey 1', response.content.decode())
+        self.assertIn('itemey 2', response.content.decode())
 
 
 class ItemModelTest(TestCase):
@@ -76,9 +98,7 @@ class ItemModelTest(TestCase):
         # 这个对象可以提取单个对象，然后还可以再调用其他函数，例如.count()。
         self.assertEqual(saved_items.count(), 2)
 
-
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, 'The first (ever) list item')
         self.assertEqual(second_saved_item.text, 'Item the second')
-
