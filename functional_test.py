@@ -72,7 +72,7 @@ class NewVisitorTest(unittest.TestCase):
         # 如assertEqual, assertTrue, assertFalse等，具体可以看下unittest的文档
 
         header_text = self.browser.find_element_by_tag_name('h1').text
-        self.asserIn('To-Do', header_text)
+        self.assertIn('To-Do', header_text)
 
         # 应用邀请他输入一个待办事项
         inputbox = self.browser.find_element_by_id('id_new_item')
@@ -91,7 +91,8 @@ class NewVisitorTest(unittest.TestCase):
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertTrue(
-            any(row.text == '1: Buy peacock feathers' for row in rows)
+            any(row.text == '1: Buy peacock feathers' for row in rows),
+            "New to-do item did not appear in table"
         )
 
         # 页面有显示了一个文本框，可以输入其他的待办事项
