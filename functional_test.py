@@ -56,6 +56,11 @@ class NewVisitorTest(unittest.TestCase):
     测试结束后，浏览器窗口就不会一直停留在桌面上了。
     '''
 
+    def check_for_row_in_list_table(self, row_text):
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = table.find_element_by_id('tr')
+        self.assertIn(row_text, [row.text for row in rows])
+
     def test_can_start_a_list_and_retrieve_it_later(self):
         # 测试的主要代码写在名为test_can_start_a_list_and_retrieve_it_later的方法中。
         # 名字以test_开头的方法都是测试方法，由测试运行程序运行。
@@ -87,32 +92,18 @@ class NewVisitorTest(unittest.TestCase):
         # 按回车键后页面更新，
         # 待办事项表格中显示了'1: Buy peacocks feathers'
         inputbox.send_keys(Keys.ENTER)
-
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-
-        self.assertTrue(
-            any(row.text == '1: Buy peacock feathers' for row in rows),
-            "New to-do item did not appear in table -- its text was:\n%s" % (
-                table.text
-            )
-        )
+        check_for_row_in_list_table('1: Buy peacock feathers')
 
         # 页面有显示了一个文本框，可以输入其他的待办事项
         # 他输入了'Use peacock feathers to make a fly'
         # 把拉巴拉
         inputbox = self.browser.find_element_by_id('id_new_item')
-        inputbox.send_keys('Use peacock feather to make a fly')
+        inputbox.send_keys('Use peacock feathers to make a fly')
         inputbox.send_keys(Keys.ENTER)
 
         # 页面再次更新
-        table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_elements_by_tag_name('tr')
-        self.assertIn('1 : Buy peacock feathers', [row.text for row in rows])
-        self.assertIn(
-            '2: Use peacock feathers to make a fly',
-            [row.text for row in rows]
-        )
+        check_for_row_in_list_table('1: Buy peacock feathers')
+        check_for_row_in_list_table('2: Use peacock feathers to make a fly')
 
         # 页面更新，清单中显示这两个待办事项
 
