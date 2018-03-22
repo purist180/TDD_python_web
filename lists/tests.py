@@ -2,6 +2,7 @@ from django.template.loader import render_to_string
 from django.core.urlresolvers import resolve
 from django.test import TestCase
 from django.http import HttpRequest
+from lists.models import Item
 
 # Create your tests here.
 # Django建议使用TestCase的一个特殊版本，这个版本由Django提供
@@ -54,4 +55,30 @@ class HomePageTest(TestCase):
         )
         self.assertEqual(response.content.decode(), expected_html)
 
-        
+
+class ItemModelTest(TestCase):
+
+    def test_saving_and_retrieving_items(self):
+        first_item = Item()
+        first_item.text = 'The first (ever) list item'
+        first_item.save()
+
+        second_item = Item()
+        second_item.text = 'Item the second'
+        second_item.save()
+        # 数据库中创建新纪录的过程：先创建一个对象，再为一些属性赋值
+        # 然后调用.save()。
+
+        saved_items = Item.objects.all()
+        # Django提供了一个查询数据库的API，即类属性。objects
+        # 使用最简单的方法.all()，取回这个表中的全部记录。
+        # 得到的结果是一个类似list的对象，QuerySet。
+        # 这个对象可以提取单个对象，然后还可以再调用其他函数，例如.count()。
+        self.assertEqual(saved_items.count(), 2)
+
+
+        first_saved_item = saved_items[0]
+        second_saved_item = saved_items[1]
+        self.assertEqual(first_saved_item.text, 'The first (ever) list item')
+        self.assertEqual(second_saved_item.text, 'Item the second')
+
