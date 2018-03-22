@@ -58,7 +58,7 @@ class NewVisitorTest(unittest.TestCase):
 
     def check_for_row_in_list_table(self, row_text):
         table = self.browser.find_element_by_id('id_list_table')
-        rows = table.find_element_by_id('tr')
+        rows = table.find_elements_by_tag_name('tr')
         self.assertIn(row_text, [row.text for row in rows])
 
     def test_can_start_a_list_and_retrieve_it_later(self):
@@ -92,7 +92,7 @@ class NewVisitorTest(unittest.TestCase):
         # 按回车键后页面更新，
         # 待办事项表格中显示了'1: Buy peacocks feathers'
         inputbox.send_keys(Keys.ENTER)
-        check_for_row_in_list_table('1: Buy peacock feathers')
+        self.check_for_row_in_list_table('1: Buy peacock feathers')
 
         # 页面有显示了一个文本框，可以输入其他的待办事项
         # 他输入了'Use peacock feathers to make a fly'
@@ -102,8 +102,8 @@ class NewVisitorTest(unittest.TestCase):
         inputbox.send_keys(Keys.ENTER)
 
         # 页面再次更新
-        check_for_row_in_list_table('1: Buy peacock feathers')
-        check_for_row_in_list_table('2: Use peacock feathers to make a fly')
+        self.check_for_row_in_list_table('1: Buy peacock feathers')
+        self.check_for_row_in_list_table('2: Use peacock feathers to make a fly')
 
         # 页面更新，清单中显示这两个待办事项
 
