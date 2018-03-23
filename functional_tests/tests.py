@@ -91,10 +91,14 @@ class NewVisitorTest(LiveServerTestCase):
         # 在文本框中输入'Buy peacock feathers',
         inputbox.send_keys('Buy peacock feathers')
 
-        # 按回车键后页面更新，
-        # 待办事项表格中显示了'1: Buy peacocks feathers'
+        # 按回车键后被带到了一个新URL
+        # 在新页面的待办事项清单中显示了'1: Buy peacocks feathers'
         inputbox.send_keys(Keys.ENTER)
-        self.check_for_row_in_list_table('1: Buy peacock feathers')
+        edith_list_url = self.browser.current_url
+        self.assertRegex(edith_list_url, '/list/.+')
+        sellf.check_for_row_in_list_table('1: Buy peacock feathers')
+        # assertRegex是unittest中的辅助函数，检查字符串是否和正则表达式匹配。
+
 
         # 页面有显示了一个文本框，可以输入其他的待办事项
         # 他输入了'Use peacock feathers to make a fly'
@@ -103,11 +107,46 @@ class NewVisitorTest(LiveServerTestCase):
         inputbox.send_keys('Use peacock feathers to make a fly')
         inputbox.send_keys(Keys.ENTER)
 
-        # 页面再次更新
+        # 页面更新，清单中显示这两个待办事项
         self.check_for_row_in_list_table('1: Buy peacock feathers')
         self.check_for_row_in_list_table('2: Use peacock feathers to make a fly')
 
-        # 页面更新，清单中显示这两个待办事项
+        # 现在有个叫弗朗西斯的家伙访问了网站
+
+        ## 使用一个新的浏览器会话
+        ## 确保伊迪丝的信息不会从cookie中泄露出来
+        self.browser.quit()
+        self.browser = webdriver.Chrome()
+
+        # 弗朗西斯访问首页
+        # 页面中看不到伊迪丝的清单
+        self.browser.get(self.live_server_url)
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        self.assertNotIn('make a fly', page_text)
+
+        # 弗朗西斯输入了一个待办事项，新建一个清单
+        inputbox = browser.find_element_by_id('id_new_item')
+        inputbox.send_keys('Buy milk')
+        inputbox.send_keys(Keys.ENTER)
+
+        # 弗朗西斯获得了他唯一的URL
+        francis_list_url = self.browser.current_url
+        self.assertRegex(francis_list_url, '/list/.+')
+        self.assertNotEuqal(francis_list_url, edith_list_url)
+
+        # 这个页面还是没有伊迪丝的清单
+        page_text = self.browser.find_element_by_tag_name('body').text
+        self.assertNotIn('Buy peacock feathers', page_text)
+        self.assertNotIn('make a fly', page_text)
+
+        # 暂时完事了
+
+
+
+
+
         self.fail('Finish the test!!!')
+
 
 
