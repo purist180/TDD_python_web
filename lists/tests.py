@@ -2,7 +2,7 @@ from django.template.loader import render_to_string
 from django.core.urlresolvers import resolve
 from django.test import TestCase
 from django.http import HttpRequest
-from lists.models import Item
+from lists.models import Item, List
 
 # Create your tests here.
 # Django建议使用TestCase的一个特殊版本，这个版本由Django提供
@@ -39,18 +39,27 @@ class HomePageTest(TestCase):
         # 对比字符串，不用像之前一样对比字节Bytes。
 
 
-class ItemModelTest(TestCase):
+class ListAndItemModelTest(TestCase):
 
     def test_saving_and_retrieving_items(self):
+        list_ = List()
+        list_.save()
+
         first_item = Item()
+
         first_item.text = 'The first (ever) list item'
+        first_item.list = list_
         first_item.save()
 
         second_item = Item()
         second_item.text = 'Item the second'
+        second_item.list = list_
         second_item.save()
         # 数据库中创建新纪录的过程：先创建一个对象，再为一些属性赋值
         # 然后调用.save()。
+
+        saved_list = List.objects.first()
+        self.assertEqual(saved_list, list_)
 
         saved_items = Item.objects.all()
         # Django提供了一个查询数据库的API，即类属性。objects
@@ -62,7 +71,9 @@ class ItemModelTest(TestCase):
         first_saved_item = saved_items[0]
         second_saved_item = saved_items[1]
         self.assertEqual(first_saved_item.text, 'The first (ever) list item')
+        self.assertEqual(first_saved_item.list, list_)
         self.assertEqual(second_saved_item.text, 'Item the second')
+        self.assertEqual(second_saved_item.list, list_)
 
 
 class ListViewTest(TestCase):
@@ -72,8 +83,9 @@ class ListViewTest(TestCase):
         self.assertTemplateUsed(response, 'list.html')
 
     def test_display_all_itmes(self):
-        Item.objects.create(text='itemey 1')
-        Item.objects.create(text='itemey 2')
+        list_ = List.objects.create()
+        Item.objects.create(text='itemey 1', list=list_)
+        Item.objects.create(text='itemey 2', list=list_)
 
         response = self.client.get('/lists/the-only-list-in-the-world/')
 
