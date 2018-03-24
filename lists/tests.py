@@ -38,47 +38,6 @@ class HomePageTest(TestCase):
         # 使用.decode()把response.content中的字节转换成Python中的Unicode字符串，这样就可以
         # 对比字符串，不用像之前一样对比字节Bytes。
 
-    def test_home_page_can_save_a_POST_request(self):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['item_text'] = 'A new list item'
-        # 用到了HttpRequest的几个特殊性：.method和.POST
-        # 阅读Django关于请求和相应的文档。
-
-        response = home_page(request)
-
-        self.assertEqual(Item.objects.count(), 1)
-        # 检查是否吧一个新的Item对象存入数据库。objects.count()是objects.all().count()的简化形式。
-        new_item = Item.objects.first()  # 等价于Item.objects.all()[0]
-        self.assertEqual(new_item.text, 'A new list item')
-
-    def test_home_page_redirects_after_POST(self):
-        request = HttpRequest()
-        request.method = 'POST'
-        request.POST['item_text'] = 'A new list item'
-
-        response = home_page(request)
-
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response['location'], '/lists/the-only-list-in-the-world/')
-
-    def test_home_page_only_saves_items_when_necessary(self):
-        request = HttpRequest()
-        home_page(request)
-        self.assertEqual(Item.objects.count(), 0)
-
-    # def test_home_page_can_display_all_list_items(self):
-    #     Item.objects.create(text='itemey 1')
-    #     Item.objects.create(text='itemey 2')
-
-    #     request = HttpRequest()
-    #     response = home_page(request)
-
-    #     self.assertIn('itemey 1', response.content.decode())
-    #     self.assertIn('itemey 2', response.content.decode())
-
-
-
 
 class ItemModelTest(TestCase):
 
@@ -105,6 +64,7 @@ class ItemModelTest(TestCase):
         self.assertEqual(first_saved_item.text, 'The first (ever) list item')
         self.assertEqual(second_saved_item.text, 'Item the second')
 
+
 class ListViewTest(TestCase):
 
     def test_uses_list_template(self):
@@ -119,3 +79,33 @@ class ListViewTest(TestCase):
 
         self.assertContains(response, 'itemey 1')
         self.assertContains(response, 'itemey 2')
+
+
+class NewListTest(TestCase):
+
+    def test_home_page_can_save_a_POST_request(self):
+        self.client.post(
+            '/lists/new',
+            data={'item_text': 'A new list item'}
+        )
+        self.assertEqual(Item.objects.count(), 1)
+        new_item = Item.objects.first()
+        self.assertEqual(new_item.text, 'A new list item')
+
+    def test_home_page_redirects_after_POST(self):
+        # request = HttpRequest()
+        # request.method = 'POST'
+        # request.POST['item_text'] = 'A new list item'
+
+        # response = home_page(request)
+
+        # self.assertEqual(response.status_code, 302)
+        # self.assertEqual(response['location'],
+        #                  '/lists/the-only-list-in-the-world/')
+
+        response = self.client.post(
+            '/lists/new',
+            data={'item_text': 'A new list item'}
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, '/lists/the-only-list-in-the-world/')
