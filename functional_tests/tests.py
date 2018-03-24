@@ -95,8 +95,8 @@ class NewVisitorTest(LiveServerTestCase):
         # 在新页面的待办事项清单中显示了'1: Buy peacocks feathers'
         inputbox.send_keys(Keys.ENTER)
         edith_list_url = self.browser.current_url
-        self.assertRegex(edith_list_url, '/list/.+')
-        sellf.check_for_row_in_list_table('1: Buy peacock feathers')
+        self.assertRegex(edith_list_url, '/lists/.+')
+        self.check_for_row_in_list_table('1: Buy peacock feathers')
         # assertRegex是unittest中的辅助函数，检查字符串是否和正则表达式匹配。
 
 
@@ -126,14 +126,14 @@ class NewVisitorTest(LiveServerTestCase):
         self.assertNotIn('make a fly', page_text)
 
         # 弗朗西斯输入了一个待办事项，新建一个清单
-        inputbox = browser.find_element_by_id('id_new_item')
+        inputbox = self.browser.find_element_by_id('id_new_item')
         inputbox.send_keys('Buy milk')
         inputbox.send_keys(Keys.ENTER)
 
         # 弗朗西斯获得了他唯一的URL
         francis_list_url = self.browser.current_url
-        self.assertRegex(francis_list_url, '/list/.+')
-        self.assertNotEuqal(francis_list_url, edith_list_url)
+        self.assertRegex(francis_list_url, '/lists/.+')
+        self.assertNotEqual(francis_list_url, edith_list_url)
 
         # 这个页面还是没有伊迪丝的清单
         page_text = self.browser.find_element_by_tag_name('body').text
